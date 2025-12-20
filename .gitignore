@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
+.vscode/
+
+# Dataset and Large Files
+# Excluding the raw dataset zip and extracted folder as they should be downloaded (see README)
+dataset/
+realwaste.zip
+
+# Optional: exclude model weights if you prefer Releases, but 44MB is okay for avoiding LFS
+# best_waste_model.pth

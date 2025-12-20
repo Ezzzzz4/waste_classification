@@ -1,0 +1,15 @@
+                     precision    recall  f1-score   support
+
+          Cardboard       0.98      1.00      0.99        42
+      Food Organics       0.98      1.00      0.99        40
+              Glass       1.00      1.00      1.00        42
+              Metal       0.98      0.99      0.98        87
+Miscellaneous Trash       0.96      0.95      0.96        57
+              Paper       0.96      0.98      0.97        46
+            Plastic       0.99      0.96      0.98       114
+      Textile Trash       1.00      1.00      1.00        35
+         Vegetation       1.00      1.00      1.00        37
+
+           accuracy                           0.98       500
+          macro avg       0.98      0.99      0.98       500
+       weighted avg       0.98      0.98      0.98       500
