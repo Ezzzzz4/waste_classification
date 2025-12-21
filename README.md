@@ -39,7 +39,7 @@ The model was trained for 25 epochs and achieved the following performance metri
 ### Installation
 1.  Clone the repository:
     ```bash
-    git clone <repository_url>
+    git clone https://github.com/Ezzzzz4/waste_classification_resnet
     cd RealWaste
     ```
 2.  Install dependencies:
