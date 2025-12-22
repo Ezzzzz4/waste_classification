@@ -10,10 +10,16 @@ import seaborn as sns
 from sklearn.metrics import confusion_matrix, classification_report
 import os
 import random
+import sys
 
 # Set device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Using device: {device}")
+
+# Fix path to import model from parent directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 
 # 1. Model Definition
 from model import WasteClassifier
@@ -23,8 +29,9 @@ def main():
     model = WasteClassifier(num_classes=9)
     model = model.to(device)
 
-    # Load weights
-    weights_path = 'best_waste_model.pth'
+    # Load weights (located in project root/pretrained)
+    weights_path = os.path.join(parent_dir, 'pretrained', 'best_waste_model.pth')
+    
     if os.path.exists(weights_path):
         model.load_state_dict(torch.load(weights_path, map_location=device))
         print("Model weights loaded successfully!")
@@ -35,7 +42,7 @@ def main():
     model.eval()
 
     # 2. Dataset and Transforms
-    data_dir = "dataset/RealWaste"
+    data_dir = os.path.join(parent_dir, "dataset", "RealWaste")
     if not os.path.exists(data_dir):
         print(f"Error: Dataset directory {data_dir} not found.")
         return
@@ -77,16 +84,20 @@ def main():
     plt.xlabel('Predicted')
     plt.ylabel('True')
     plt.title('Confusion Matrix')
-    plt.savefig('confusion_matrix.png')
-    print("Saved confusion_matrix.png")
+    
+    cm_path = os.path.join(current_dir, 'confusion_matrix.png')
+    plt.savefig(cm_path)
+    print(f"Saved {cm_path}")
 
     # Classification Report
     report = classification_report(y_true, y_pred, target_names=classes)
     print("\nClassification Report:")
     print(report)
-    with open('classification_report.txt', 'w') as f:
+    
+    report_path = os.path.join(current_dir, 'classification_report.txt')
+    with open(report_path, 'w') as f:
         f.write(report)
-    print("Saved classification_report.txt")
+    print(f"Saved {report_path}")
 
 def denormalize(tensor, mean, std):
     tensor = tensor.clone().detach().cpu()
@@ -119,8 +130,9 @@ def visualize_predictions(dataset, model, classes, mean, std, num_images=6):
         ax.axis('off')
         
     plt.tight_layout()
-    plt.savefig('prediction_samples.png')
-    print("Saved prediction_samples.png")
+    pred_path = os.path.join(current_dir, 'prediction_samples.png')
+    plt.savefig(pred_path)
+    print(f"Saved {pred_path}")
 
 def evaluate_model(model, loader):
     all_preds = []

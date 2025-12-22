@@ -29,6 +29,3 @@ coverage.xml
 # Excluding the raw dataset zip and extracted folder as they should be downloaded (see README)
 dataset/
 realwaste.zip
-
-# Optional: exclude model weights if you prefer Releases, but 44MB is okay for avoiding LFS
-# best_waste_model.pth

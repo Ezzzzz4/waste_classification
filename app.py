@@ -19,7 +19,7 @@ CLASSES = ['Cardboard', 'Food Organics', 'Glass', 'Metal', 'Miscellaneous Trash'
            'Paper', 'Plastic', 'Textile Trash', 'Vegetation']
 
 model = WasteClassifier(num_classes=len(CLASSES))
-weights_path = 'best_waste_model.pth'
+weights_path = os.path.join('pretrained', 'best_waste_model.pth')
 
 if os.path.exists(weights_path):
     model.load_state_dict(torch.load(weights_path, map_location=device))
@@ -64,15 +64,18 @@ def predict_waste(image):
     return confidences
 
 # --- 5. Helper to Read Reports ---
+# --- 5. Helper to Read Reports ---
 def get_classification_report():
-    if os.path.exists('classification_report.txt'):
-        with open('classification_report.txt', 'r') as f:
+    report_path = os.path.join('evaluate', 'classification_report.txt')
+    if os.path.exists(report_path):
+        with open(report_path, 'r') as f:
             return f.read()
-    return "Report not generated yet."
+    return "Report not generated yet within 'evaluate/' folder."
 
 def get_confusion_matrix():
-    if os.path.exists('confusion_matrix.png'):
-        return 'confusion_matrix.png'
+    cm_path = os.path.join('evaluate', 'confusion_matrix.png')
+    if os.path.exists(cm_path):
+        return cm_path
     return None
 
 # --- 6. Build Gradio Interface ---
