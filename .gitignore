@@ -22,10 +22,7 @@ coverage.xml
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# VS Code
-.vscode/
-
 # Dataset and Large Files
-# Excluding the raw dataset zip and extracted folder as they should be downloaded (see README)
+# Excluding the dataset it should be downloaded (see README)
 dataset/
-realwaste.zip
+weights/final/

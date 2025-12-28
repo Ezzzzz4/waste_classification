@@ -23,18 +23,21 @@ sys.path.append(parent_dir)
 
 # 1. Model Definition
 from model import WasteClassifier
+from utils.gradcam import GradCAM
+
 
 def main():
     # Initialize model
     model = WasteClassifier(num_classes=9)
     model = model.to(device)
 
-    # Load weights (located in project root/pretrained)
-    weights_path = os.path.join(parent_dir, 'pretrained', 'best_waste_model.pth')
+    # Load weights 
+    weights_path = os.path.join(parent_dir, 'weights', 'best_waste_model.pth')
     
+
     if os.path.exists(weights_path):
         model.load_state_dict(torch.load(weights_path, map_location=device))
-        print("Model weights loaded successfully!")
+        print(f"Model weights loaded successfully from {weights_path}")
     else:
         print(f"Error: {weights_path} not found.")
         return
@@ -42,10 +45,7 @@ def main():
     model.eval()
 
     # 2. Dataset and Transforms
-    data_dir = os.path.join(parent_dir, "dataset", "RealWaste")
-    if not os.path.exists(data_dir):
-        print(f"Error: Dataset directory {data_dir} not found.")
-        return
+    data_dir = os.path.join(parent_dir, "dataset") # Adjusted path assumption based on previous context
 
     classes = sorted([d for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d))])
     print(f"Classes found: {classes}")
@@ -112,27 +112,46 @@ def visualize_predictions(dataset, model, classes, mean, std, num_images=6):
     
     indices = random.sample(range(len(dataset)), num_images)
     
+    # Initialize GradCAM
+    # Target layer for EfficientNet-B0 is usually features[-1] (the last conv block)
+    target_layer = model.backbone.features[-1]
+    grad_cam = GradCAM(model, target_layer)
+    
     for i, idx in enumerate(indices):
         image, label = dataset[idx]
         
+        # Prepare input
+        input_tensor = image.unsqueeze(0).to(device)
+        
+        # Generate heatmap
+        cam = grad_cam.generate_cam(input_tensor)
+        
+        # Prediction
         with torch.no_grad():
-            input_tensor = image.unsqueeze(0).to(device)
             output = model(input_tensor)
             _, predicted = torch.max(output, 1)
             predicted_idx = predicted.item()
             
         ax = axes[i]
-        img_display = denormalize(image, mean, std)
-        ax.imshow(img_display)
+        
+        # Convert image for display (denormalize)
+        img_display_np = denormalize(image, mean, std) # Returns numpy (H, W, 3)
+        img_display_pil = Image.fromarray((img_display_np * 255).astype(np.uint8))
+        
+        # Overlay Heatmap
+        overlayed_img = grad_cam.overlay_heatmap(img_display_pil, cam, alpha=0.5)
+        
+        ax.imshow(overlayed_img)
         
         color = 'green' if predicted_idx == label else 'red'
         ax.set_title(f"True: {classes[label]}\nPred: {classes[predicted_idx]}", color=color, fontsize=12, fontweight='bold')
         ax.axis('off')
         
     plt.tight_layout()
-    pred_path = os.path.join(current_dir, 'prediction_samples.png')
+    pred_path = os.path.join(current_dir, 'prediction_gradcam.png')
     plt.savefig(pred_path)
     print(f"Saved {pred_path}")
+
 
 def evaluate_model(model, loader):
     all_preds = []
