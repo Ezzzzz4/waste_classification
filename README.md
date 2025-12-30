@@ -113,7 +113,7 @@ Dealing with class imbalance (e.g., fewer Textile samples) and noisy labels requ
 ### Installation
 ```bash
 git clone https://github.com/Ezzzzz4/waste_classification
-pip install -r requirements.requirements.txt
+pip install -r requirements.txt
 ```
 
 ### Deployment (Web Interface)
