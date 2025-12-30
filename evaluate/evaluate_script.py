@@ -62,11 +62,33 @@ def main():
 
     full_dataset = ImageFolder(root=data_dir, transform=val_transforms)
     
-    # Evaluate on a subset for speed
-    indices = list(range(len(full_dataset)))
-    random.shuffle(indices)
-    eval_subset_indices = indices[:500] 
-    eval_dataset = Subset(full_dataset, eval_subset_indices)
+    # Stratified Split (80% Train, 10% Val, 10% Test) - Matching train_model.ipynb
+    from sklearn.model_selection import train_test_split
+    
+    # Get indices per class
+    class_indices = {i: [] for i in range(len(full_dataset.classes))}
+    for idx, (_, label) in enumerate(full_dataset.samples):
+        class_indices[label].append(idx)
+
+    test_indices = []
+
+    # Replicate the split logic
+    for label, indices in class_indices.items():
+        # First split: 80% Train, 20% Temp (Val + Test)
+        train_idx, temp_idx = train_test_split(
+            indices, train_size=0.8, random_state=42, stratify=[label]*len(indices)
+        )
+        # Second split: Split Temp into 50% Val, 50% Test (which matches 10% Val, 10% Test of total)
+        val_idx, test_idx = train_test_split(
+            temp_idx, train_size=0.5, random_state=42, stratify=[label]*len(temp_idx)
+        )
+        test_indices.extend(test_idx)
+
+    print(f"Total dataset size: {len(full_dataset)}")
+    print(f"Test set size: {len(test_indices)}")
+    
+    # Evaluate on the dedicated test set
+    eval_dataset = Subset(full_dataset, test_indices)
     eval_loader = DataLoader(eval_dataset, batch_size=32, shuffle=False)
 
     # 3. Visual Predictions

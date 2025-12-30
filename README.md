@@ -157,22 +157,22 @@ The model was trained for 50 epochs, achieving its peak performance at epoch 46 
 
 | Class               | Precision | Recall | F1-Score | Support |
 | ------------------- | --------- | ------ | -------- | ------- |
-| Cardboard           | 1.00      | 1.00   | 1.00     | 52      |
-| Food Organics       | 1.00      | 1.00   | 1.00     | 35      |
-| Glass               | 0.97      | 0.98   | 0.98     | 64      |
-| Metal               | 0.99      | 1.00   | 0.99     | 83      |
-| Miscellaneous Trash | 0.97      | 1.00   | 0.98     | 29      |
-| Paper               | 1.00      | 1.00   | 1.00     | 87      |
-| Plastic             | 0.99      | 0.96   | 0.97     | 90      |
-| Textile Trash       | 1.00      | 1.00   | 1.00     | 24      |
-| Vegetation          | 1.00      | 1.00   | 1.00     | 36      |
+| Cardboard           | 0.99      | 1.00   | 0.99     | 87      |
+| Food Organics       | 0.95      | 1.00   | 0.98     | 42      |
+| Glass               | 0.92      | 0.98   | 0.95     | 93      |
+| Metal               | 0.98      | 0.95   | 0.97     | 121     |
+| Miscellaneous Trash | 0.90      | 0.86   | 0.88     | 50      |
+| Paper               | 0.98      | 0.95   | 0.97     | 110     |
+| Plastic             | 0.95      | 0.91   | 0.93     | 141     |
+| Textile Trash       | 0.86      | 0.94   | 0.90     | 32      |
+| Vegetation          | 0.94      | 1.00   | 0.97     | 44      |
 
 ### Overall Performance
 | Metric       | Precision | Recall | F1-Score | Support |
 | ------------ | --------- | ------ | -------- | ------- |
-| Accuracy     | —         | —      | **0.99** | 500     |
-| Macro Avg    | 0.99      | 0.99   | 0.99     | 500     |
-| Weighted Avg | 0.99      | 0.99   | 0.99     | 500     |
+| Accuracy     | —         | —      | **0.95** | 720     |
+| Macro Avg    | 0.94      | 0.95   | 0.95     | 720     |
+| Weighted Avg | 0.95      | 0.95   | 0.95     | 720     |
 
 
 
