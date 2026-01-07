@@ -1,30 +1,69 @@
+"""
+Gradient-weighted Class Activation Mapping (GradCAM) Implementation.
+
+This module provides a GradCAM implementation for visualizing which regions
+of an input image are most important for the model's predictions.
+
+Reference:
+    Selvaraju et al., "Grad-CAM: Visual Explanations from Deep Networks
+    via Gradient-based Localization", ICCV 2017.
+"""
+
 import torch
 import torch.nn.functional as F
 import numpy as np
 import matplotlib.cm as cm
 from PIL import Image
 
+
 class GradCAM:
+    """
+    Gradient-weighted Class Activation Mapping (GradCAM).
+
+    Generates visual explanations for CNN predictions by computing
+    weighted activations based on gradients flowing into the target layer.
+
+    Attributes:
+        model (nn.Module): The neural network model.
+        target_layer (nn.Module): The convolutional layer to visualize.
+        gradients (torch.Tensor): Cached gradients from backward pass.
+        activations (torch.Tensor): Cached activations from forward pass.
+
+    Args:
+        model (nn.Module): A trained CNN model.
+        target_layer (nn.Module): Target convolutional layer (e.g., last conv block).
+    """
+
     def __init__(self, model, target_layer):
+        """Initialize GradCAM with model and target layer, registering hooks."""
         self.model = model
         self.target_layer = target_layer
         self.gradients = None
         self.activations = None
-        
-        # Hook into the target layer
-        self.target_layer.register_forward_hook(self.save_activation)
-        self.target_layer.register_full_backward_hook(self.save_gradient)
 
-    def save_activation(self, module, input, output):
+        # Register hooks to capture activations and gradients
+        self.target_layer.register_forward_hook(self._save_activation)
+        self.target_layer.register_full_backward_hook(self._save_gradient)
+
+    def _save_activation(self, module, input, output):
+        """Hook to save forward pass activations."""
         self.activations = output
 
-    def save_gradient(self, module, grad_input, grad_output):
-        # Gradients are typically tuple (grad_output,), we want the tensor
+    def _save_gradient(self, module, grad_input, grad_output):
+        """Hook to save backward pass gradients."""
         self.gradients = grad_output[0]
 
     def generate_cam(self, input_image, target_class=None):
-        # input_image: (1, 3, H, W)
-        
+        """
+        Generate Class Activation Map for the input image.
+
+        Args:
+            input_image (torch.Tensor): Input tensor of shape (1, 3, H, W).
+            target_class (int, optional): Target class index. If None, uses predicted class.
+
+        Returns:
+            np.ndarray: CAM heatmap normalized to [0, 1], shape (h, w).
+        """
         # Forward pass
         output = self.model(input_image)
         
@@ -66,17 +105,18 @@ class GradCAM:
         return cam.detach().cpu().numpy()
 
     def overlay_heatmap(self, image_pil, cam, alpha=0.5, colormap='jet'):
-        # image_pil: PIL Image (H, W, 3)
-        # cam: numpy array (h, w)
-        
-        # Resize CAM to image size using PIL
-        # Convert cam to PIL image for resizing
-        # We need to map 0-1 float to 0-255 uint8 first for visualization if we use PIL directly,
-        # but here we want to resize the float map first then colormap it.
-        # Actually simplest to resize with PIL, but PIL resize expects uint8 or similar usually for images,
-        # but supports F (float).
-        
-        # Ensure cam is float32
+        """
+        Overlay CAM heatmap on the original image.
+
+        Args:
+            image_pil (PIL.Image): Original image as PIL Image.
+            cam (np.ndarray): CAM heatmap array of shape (h, w).
+            alpha (float): Blending factor for heatmap. Default 0.5.
+            colormap (str): Matplotlib colormap name. Default 'jet'.
+
+        Returns:
+            PIL.Image: Image with heatmap overlay.
+        """
         cam_pil = Image.fromarray(cam).convert('F')
         cam_pil = cam_pil.resize(image_pil.size, resample=Image.BICUBIC)
         
